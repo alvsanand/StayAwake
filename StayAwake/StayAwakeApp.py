@@ -1,44 +1,31 @@
-# App: Stay Awake
-# Author: Trevor White
-# Description: Stay Awake is a simple app that keeps your computer from sleeping. Features a simple GUI and
-#              minimize to tray functionality.
-
-from pyautogui import press
+import sys
+from datetime import datetime, timedelta
 from time import sleep
-from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QAction, qApp
+
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5.QtWidgets import QAction, QMenu, QSystemTrayIcon, qApp
 
-import sys
-import images_qr  # workaround to get it to compile to .exe with pyinstaller
-import StayAwake
+import StayAwake.images_qr  # workaround to get it to compile to .exe with pyinstaller
+
+from StayAwake.PreventSleep import PreventSleep
+from StayAwake.StayAwakeWindow import StayAwakeWindow
 
 # since window is fixed, prevents it from showing small on high resolution screens
 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-
-
-# QThread class to enable threading in GUI for "preventing sleep" loop
-class PreventSleep(QThread):
-    def __init__(self):
-        QThread.__init__(self)
-
-    # "Prevent sleep" method presses f24 key every 60 seconds to prevent sleep
-    def run(self):
-        while True:
-            press('f24')  # press f24 key to prevent sleep
-            sleep(60)  # wait 1 minute
 
 
 # main GUI class, inherits from QMainWindow
 class StayAwakeApp(QtWidgets.QMainWindow):
     def __init__(self):
         super(StayAwakeApp, self).__init__()
-        self.ui = StayAwake.Ui_MainWindow()
+        self.ui = StayAwakeWindow()
         self.ui.setupUi(self)
-        self.ui.label_2.setPixmap(
-            QtGui.QPixmap(":icons/32x32.png"))  # set logo in app window (workaround for pyinstaller)
-        self.ui.toggle.clicked.connect(self.togglePressed)  # listener for when toggle button is pressed
+        # set logo in app window (workaround for pyinstaller)
+        self.ui.label_2.setPixmap(QtGui.QPixmap(":icons/32x32.png"))
+        # listener for when toggle button is pressed
+        self.ui.toggle.clicked.connect(self.togglePressed)
 
         self.running = False  # flag to check if program is on or off
         self.preventSleep = None  # initializing to hold PreventSleep instance
@@ -56,9 +43,11 @@ class StayAwakeApp(QtWidgets.QMainWindow):
     # setup tray icon and menu
     def setupTray(self):
         self.trayIcon = QSystemTrayIcon(self)  # instance of QSystemTrayIcon
-        self.trayIcon.setIcon(QIcon(":icons/StayAwakeOpaque.ico"))  # set tray icon image
+        # set tray icon image
+        self.trayIcon.setIcon(QIcon(":icons/StayAwakeOpaque.ico"))
         self.trayIcon.setToolTip("Stay Awake")
-        self.trayIcon.activated.connect(self.trayIconSingleClick)  # Icon clicked trigger
+        self.trayIcon.activated.connect(
+            self.trayIconSingleClick)  # Icon clicked trigger
 
         openAction = QAction("Open", self)  # "open" right click option in tray
         quitAction = QAction("Quit", self)  # "quit" right click option in tray
@@ -76,7 +65,7 @@ class StayAwakeApp(QtWidgets.QMainWindow):
             self.ui.toggle.setText("Start")  # set toggle button text to "Off"
             self.status = "off"
             self.running = False  # update state
-            self.preventSleep.terminate()  # terminate prevent sleep thread
+            self.preventSleep.stop()  # terminate prevent sleep thread
         else:
             self.ui.toggle.setText("Stop")  # set toggle button text to "On"
             self.status = "on"
@@ -91,14 +80,16 @@ class StayAwakeApp(QtWidgets.QMainWindow):
                 event.ignore()  # ignore "minimize to taskbar" event
                 self.hide()  # hide the window
                 self.trayIcon.show()  # show tray icon
-                self.trayIcon.showMessage("Stay Awake is currently " + self.status + ".", "Minimized to tray.",
-                                          QSystemTrayIcon.Information)  # show tray message popup
+                self.trayIcon.showMessage(
+                    "Stay Awake is currently " + self.status + ".",
+                    "Minimized to tray.", QSystemTrayIcon.Information)  # show tray message popup
 
 
 # set icon for window
-def setAppIcon():
+def _setAppIcon(app):
     appIcon = QtGui.QIcon()  # create instance of QIcon class
-    appIcon.addFile(':icons/16x16.png', QtCore.QSize(16, 16))  # adding different sized icons
+    # adding different sized icons
+    appIcon.addFile(':icons/16x16.png', QtCore.QSize(16, 16))
     appIcon.addFile(':icons/32x32.png', QtCore.QSize(32, 32))
     appIcon.addFile(':icons/48x48.png', QtCore.QSize(48, 48))
     appIcon.addFile(':icons/192x192.png', QtCore.QSize(192, 192))
@@ -106,9 +97,11 @@ def setAppIcon():
     app.setWindowIcon(appIcon)  # set correct window icon
 
 
-if __name__ == '__main__':
+def start():
     app = QtWidgets.QApplication([])
-    setAppIcon()
+
+    _setAppIcon(app)
+
     application = StayAwakeApp()
-    application.show()
+    application.togglePressed()
     sys.exit(app.exec())
