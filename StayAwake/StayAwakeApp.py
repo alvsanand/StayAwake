@@ -53,6 +53,7 @@ class StayAwakeApp(QtWidgets.QMainWindow):
         quitAction = QAction("Quit", self)  # "quit" right click option in tray
         openAction.triggered.connect(self.showNormal)  # open app trigger
         quitAction.triggered.connect(qApp.quit)  # quit app trigger
+        quitAction.triggered.connect(self.closeEvent)  # quit app trigger
         trayMenu = QMenu()  # QMenu class instance
         trayMenu.addAction(openAction)  # add open action
         trayMenu.addAction(quitAction)  # add quit action
@@ -60,6 +61,7 @@ class StayAwakeApp(QtWidgets.QMainWindow):
         self.trayIcon.show()  # makes tray icon visible
 
     # handle toggle button states and calling prevent sleep
+
     def togglePressed(self):
         if self.running:
             self.ui.toggle.setText("Start")  # set toggle button text to "Off"
@@ -74,6 +76,11 @@ class StayAwakeApp(QtWidgets.QMainWindow):
             self.running = True  # update state
             self.preventSleep = PreventSleep()  # create instance of PreventSleep class
             self.preventSleep.start()  # start prevent sleep thread
+
+    def closeEvent(self, event):
+        self.preventSleep.stop()
+        if event:
+            event.accept()
 
     # making "minimize" button minimizes to tray instead of taskbar
     def changeEvent(self, event):
