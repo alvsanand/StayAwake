@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2.1.1] - 2021-04-27
+
+## Fixed
+
+- Inverted Status text.
+
 ## [2.1.0] - 2021-04-27
 
 ## Added

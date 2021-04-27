@@ -63,13 +63,13 @@ class StayAwakeApp(QtWidgets.QMainWindow):
     def togglePressed(self):
         if self.running:
             self.ui.toggle.setText("Start")  # set toggle button text to "Off"
-            self.trayIcon.setToolTip("Stay Awake - ON")
+            self.trayIcon.setToolTip("Stay Awake - OFF")
             self.status = "off"
             self.running = False  # update state
             self.preventSleep.stop()  # terminate prevent sleep thread
         else:
             self.ui.toggle.setText("Stop")  # set toggle button text to "On"
-            self.trayIcon.setToolTip("Stay Awake - OFF")
+            self.trayIcon.setToolTip("Stay Awake - ON")
             self.status = "on"
             self.running = True  # update state
             self.preventSleep = PreventSleep()  # create instance of PreventSleep class
