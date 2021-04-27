@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v} >> $GITHUB_ENV
+        run: Write-Output "$GITHUB_REF".Replace("refs/tags/v","") | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
       - name: "Set up Python"
         uses: actions/setup-python@v2
         with:
@@ -39,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v} >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
       - name: "Set up Python"
         uses: actions/setup-python@v2
         with:
@@ -67,7 +67,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v} >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/v}" >> $GITHUB_ENV
       - name: "Set up Python"
         uses: actions/setup-python@v2
         with:
